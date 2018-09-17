@@ -8,7 +8,7 @@ macro(cocos2d_depend_libs)
         foreach(_pkg OPENGL GLEW GLFW3 VORBIS MPG123 OPENAL SQLITE3)
             list(APPEND PREBUILT_SPECIFIC_LIBS ${_pkg})
         endforeach()
-        list(APPEND PLATFORM_SPECIFIC_LIBS ws2_32 winmm Version Iphlpapi)
+        list(APPEND PLATFORM_SPECIFIC_LIBS ws2_32 userenv psapi winmm Version Iphlpapi)
         if(MINGW)
             list(APPEND PLATFORM_SPECIFIC_LIBS shlwapi version)
         endif()
@@ -29,12 +29,14 @@ macro(cocos2d_depend_libs)
         find_library(FOUNDATION_LIBRARY Foundation)
         find_library(OPENAL_LIBRARY OpenAL)
         find_library(QUARTZCORE_LIBRARY QuartzCore)
+        find_library(GAMECONTROLLER_LIBRARY GameController)
         set(COCOS_APPLE_LIBS
             ${OPENAL_LIBRARY}
             ${AUDIOTOOLBOX_LIBRARY}
             ${QUARTZCORE_LIBRARY}
             ${FOUNDATION_LIBRARY}
             ${ICONV_LIBRARY}
+            ${GAMECONTROLLER_LIBRARY}
             )
 
         if(MACOSX)
@@ -77,7 +79,7 @@ macro(cocos2d_depend_libs)
         endif()
     endif()
 
-    foreach(_pkg ZLIB MINIZIP TinyXML2 FREETYPE WEBSOCKETS CURL FLATBUFFERS XXHASH)
+    foreach(_pkg ZLIB MINIZIP TinyXML2 FREETYPE WEBSOCKETS CURL FLATBUFFERS XXHASH UV)
         list(APPEND PREBUILT_SPECIFIC_LIBS ${_pkg})
     endforeach()
 
@@ -147,6 +149,8 @@ macro(cocos2d_depend_libs)
     endif()
 endmacro()
 
+add_definitions(-DLWS_WITH_LIBUV)
+
 macro(target_use_cocos2d_depend_libs target)
     cocos2d_depend_libs()
     message(STATUS "${target} prepare to use cpp needed libs: ${PREBUILT_SPECIFIC_LIBS}")
@@ -164,8 +168,6 @@ macro(jscocos2d_depend_libs)
 
     list(APPEND PREBUILT_SPECIFIC_LIBS SPIDERMONKEY)
     if(APPLE)
-        find_library(GAME_CONTROLLER GameController)
-        list(APPEND PLATFORM_SPECIFIC_LIBS ${GAME_CONTROLLER})
         list(APPEND PREBUILT_SPECIFIC_LIBS SQLITE3)
     endif()
 endmacro()
